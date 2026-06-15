@@ -19,9 +19,9 @@ const layoutInputs = [
   form.elements.gutter,
 ];
 
-function readNumber(name, fallback) {
+function readNumber(name, fallback, minimum = 1) {
   const value = Number(form.elements[name].value);
-  return Number.isFinite(value) && value > 0 ? value : fallback;
+  return Number.isFinite(value) && value >= minimum ? value : fallback;
 }
 
 function resetPreviewToGuide() {
@@ -35,8 +35,8 @@ function updateLayoutGuide() {
   const width = readNumber("canvas_width", 1179);
   const imageHeight = readNumber("image_height", 650);
   const swatchHeight = readNumber("swatch_height", 214);
-  const padding = readNumber("padding", 8);
-  const gutter = readNumber("gutter", 8);
+  const padding = readNumber("padding", 8, 0);
+  const gutter = readNumber("gutter", 8, 0);
   const swatchCount = Math.round(readNumber("palette_count", 10));
   const totalHeight = imageHeight + swatchHeight + padding * 2 + gutter;
 
@@ -45,7 +45,7 @@ function updateLayoutGuide() {
   layoutGuide.style.padding = `${Math.min(padding, 24)}px`;
   layoutGuide.style.gap = `${Math.min(gutter, 24)}px`;
   layoutSwatches.style.gap = `${Math.min(gutter, 24)}px`;
-  layoutSize.textContent = `${width} x ${totalHeight}`;
+  layoutSize.textContent = `輸出：${width} x ${totalHeight} px`;
 
   const currentCount = layoutSwatches.children.length;
   if (currentCount !== swatchCount) {

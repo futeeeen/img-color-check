@@ -440,9 +440,45 @@ def hue_band_order(colors: list[PaletteColor]) -> list[PaletteColor]:
     return ordered
 
 
+def smooth_luminance_order(colors: list[PaletteColor]) -> list[PaletteColor]:
+    if len(colors) <= 2:
+        return sorted(colors, key=lambda item: item.lightness)
+
+    neutral_dark = [color for color in colors if color.chroma < 0.04 and color.lightness < 0.38]
+    neutral_light = [color for color in colors if color.chroma < 0.04 and color not in neutral_dark]
+    chromatic = [color for color in colors if color not in neutral_dark and color not in neutral_light]
+
+    ordered = sorted(neutral_dark, key=lambda item: item.lightness)
+    remaining = sorted(chromatic, key=lambda item: item.lightness)
+
+    if remaining and not ordered:
+        ordered.append(remaining.pop(0))
+
+    while remaining:
+        previous = ordered[-1]
+        min_lightness = previous.lightness - 0.035
+
+        candidates = [color for color in remaining if color.lightness >= min_lightness]
+        if not candidates:
+            candidates = remaining
+
+        def transition_cost(color: PaletteColor) -> float:
+            lightness_step = max(color.lightness - previous.lightness, 0.0)
+            backward_penalty = max(previous.lightness - color.lightness, 0.0) * 4.0
+            hue_penalty = circular_hue_distance(previous.hue, color.hue) / 360.0
+            chroma_step = abs(color.chroma - previous.chroma)
+            return lightness_step * 1.1 + backward_penalty + hue_penalty * 0.55 + chroma_step * 0.35
+
+        next_color = min(candidates, key=transition_cost)
+        ordered.append(next_color)
+        remaining.remove(next_color)
+
+    return ordered + sorted(neutral_light, key=lambda item: item.lightness)
+
+
 def order_palette(colors: list[PaletteColor], mode: str) -> list[PaletteColor]:
     if mode == "luminance":
-        return sorted(colors, key=lambda item: (item.lightness, item.hue))
+        return smooth_luminance_order(colors)
     if mode == "hue":
         neutral_dark = [color for color in colors if color.chroma < 0.04 and color.lightness < 0.38]
         neutral_light = [color for color in colors if color.chroma < 0.04 and color not in neutral_dark]

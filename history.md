@@ -1,5 +1,11 @@
 # 專案上傳變更紀錄
 
+## 2026.06.15_18:28:09
+* 優化 `重到輕` 排序，改為以明度為主並加入色相與彩度連續性的平滑排序，降低食物照片色票中綠色或低彩度色插入造成的斷層感。
+* 統一 UI 尺寸標示邏輯，左側原圖與右側輸出預覽皆使用 `寬 x 高 px`，並將右側預覽標示改為 `輸出：寬 x 高 px`。
+* 修正右側版型預覽的數值讀取，讓外框粗細與分隔粗細設定為 `0` 時也能正確反映在預覽尺寸。
+* Validation: 執行 `python -m compileall app.py palette_generator.py`、`node --check static\app.js`、`python palette_generator.py valid-used\S__100302857_0.jpg --output-dir output\history-check --crop-source auto-palette --order luminance`，並確認 Web UI 首頁回傳 `200`。
+
 ## 2026.06.15_11:47:26
 * 優化預設 cinematic 色票排序，改為深色錨點加連續色相帶，降低紅綠或明暗來回穿插造成的跳動感。
 * 新增 hue-band 排序邏輯，讓色票更接近 `valid-used` 參考圖的重到輕或重、輕、重視覺節奏。

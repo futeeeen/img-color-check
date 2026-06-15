@@ -1,0 +1,19 @@
+{
+  "name": "img-color-check-docs",
+  "version": "1.0.0",
+  "description": "Introductory website for img-color-check",
+  "main": "docs/index.html",
+  "scripts": {
+    "build": "echo 'Building static docs... no compilation needed.'",
+    "start": "echo 'Static site - open docs/index.html directly'"
+  },
+  "keywords": [
+    "color-palette",
+    "oklab",
+    "saliency"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {}
+}

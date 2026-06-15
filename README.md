@@ -61,7 +61,7 @@ python palette_generator.py valid-used --output-dir output\valid-used --crop-sou
 6. Run weighted MiniBatchKMeans.
 7. Merge perceptually similar colors.
 8. Select a 10-color palette with dark, light, chromatic, and high-score candidates.
-9. Sort colors with a cinematic order.
+9. Sort colors with a cinematic hue-band order, using dark anchors first and then a continuous heavy-to-light or heavy-light-heavy color path.
 10. Render the final palette image.
 
 ## Validation Target

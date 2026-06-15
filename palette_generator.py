@@ -318,6 +318,47 @@ def select_palette(candidates: list[PaletteColor], count: int, min_distance: flo
     return selected[:count]
 
 
+def circular_hue_distance(a: float, b: float) -> float:
+    diff = abs(a - b) % 360
+    return min(diff, 360 - diff)
+
+
+def hue_band_order(colors: list[PaletteColor]) -> list[PaletteColor]:
+    if len(colors) <= 2:
+        return sorted(colors, key=lambda item: item.lightness)
+
+    by_hue = sorted(colors, key=lambda item: item.hue)
+    gaps: list[tuple[float, int]] = []
+    for index, color in enumerate(by_hue):
+        next_color = by_hue[(index + 1) % len(by_hue)]
+        gap = (next_color.hue - color.hue) % 360
+        gaps.append((gap, index))
+
+    _, gap_index = max(gaps, key=lambda item: item[0])
+    ascending = by_hue[gap_index + 1 :] + by_hue[: gap_index + 1]
+    sequence = list(reversed(ascending))
+
+    bands: list[list[PaletteColor]] = []
+    for color in sequence:
+        if not bands:
+            bands.append([color])
+            continue
+        previous = bands[-1][-1]
+        if circular_hue_distance(previous.hue, color.hue) <= 18:
+            bands[-1].append(color)
+        else:
+            bands.append([color])
+
+    ordered: list[PaletteColor] = []
+    last_band_index = max(len(bands) - 1, 1)
+    for index, band in enumerate(bands):
+        if index / last_band_index < 0.55:
+            ordered.extend(sorted(band, key=lambda item: item.lightness))
+        else:
+            ordered.extend(sorted(band, key=lambda item: item.lightness, reverse=True))
+    return ordered
+
+
 def order_palette(colors: list[PaletteColor], mode: str) -> list[PaletteColor]:
     if mode == "luminance":
         return sorted(colors, key=lambda item: (item.lightness, item.hue))
@@ -326,17 +367,9 @@ def order_palette(colors: list[PaletteColor], mode: str) -> list[PaletteColor]:
     if mode != "cinematic":
         raise ValueError(f"Unknown order mode: {mode}")
 
-    dark = [color for color in colors if color.lightness < 0.30]
-    cool = [color for color in colors if color not in dark and 105 <= color.hue <= 260]
-    neutral = [color for color in colors if color not in dark and color not in cool and color.chroma < 0.08]
-    warm = [color for color in colors if color not in dark and color not in cool and color not in neutral]
-
-    return (
-        sorted(dark, key=lambda item: item.lightness)
-        + sorted(cool, key=lambda item: (item.hue, item.lightness))
-        + sorted(neutral, key=lambda item: item.lightness)
-        + sorted(warm, key=lambda item: (item.hue, item.lightness))
-    )
+    neutral_dark = [color for color in colors if color.chroma < 0.035 and color.lightness < 0.34]
+    tonal_colors = [color for color in colors if color not in neutral_dark]
+    return sorted(neutral_dark, key=lambda item: item.lightness) + hue_band_order(tonal_colors)
 
 
 def extract_palette(

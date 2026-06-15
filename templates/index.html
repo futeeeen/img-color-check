@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Image Color Palette</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace" aria-label="色票產生器">
+        <form id="palette-form" class="control-panel">
+          <div class="brand-row">
+            <div>
+              <h1>Image Color Palette</h1>
+              <p>照片主色提取</p>
+            </div>
+            <button class="primary-action" type="submit">產生色票</button>
+          </div>
+
+          <label class="upload-zone" for="image-input">
+            <input id="image-input" name="image" type="file" accept="image/*" required>
+            <span id="file-name">選擇圖片</span>
+            <small id="image-meta"></small>
+          </label>
+
+          <div class="settings-grid">
+            <label>
+              <span>色票數</span>
+              <input name="palette_count" type="number" min="4" max="14" value="10">
+            </label>
+
+            <label>
+              <span>排序</span>
+              <select name="order">
+                <option value="cinematic" selected>Cinematic</option>
+                <option value="luminance">重到輕</option>
+                <option value="hue">色相</option>
+              </select>
+            </label>
+
+            <label>
+              <span>寬度</span>
+              <input name="canvas_width" type="number" min="720" max="1800" value="1179">
+            </label>
+
+            <label>
+              <span>照片高度</span>
+              <input name="image_height" type="number" min="360" max="1100" value="650">
+            </label>
+
+            <label>
+              <span>色票高度</span>
+              <input name="swatch_height" type="number" min="96" max="420" value="214">
+            </label>
+
+            <label>
+              <span>外框粗細</span>
+              <input name="padding" type="number" min="0" max="48" value="8">
+            </label>
+
+            <label>
+              <span>分隔粗細</span>
+              <input name="gutter" type="number" min="0" max="48" value="8">
+            </label>
+
+            <label>
+              <span>主體權重</span>
+              <input name="subject_boost" type="range" min="0" max="2" step="0.05" value="0.45">
+            </label>
+
+            <label>
+              <span>顯著性</span>
+              <input name="saliency_strength" type="range" min="0" max="2" step="0.05" value="0.85">
+            </label>
+
+            <label class="switch-row">
+              <span>局部色彩保護</span>
+              <input name="local_protection" type="checkbox" value="1.0">
+            </label>
+          </div>
+
+          <div id="status" class="status" role="status"></div>
+        </form>
+
+        <section class="preview-panel">
+          <div class="preview-toolbar">
+            <div id="hex-strip" class="hex-strip" aria-label="色票色碼"></div>
+            <a id="download-link" class="download-action is-disabled" href="#" download>下載 PNG</a>
+          </div>
+          <div class="preview-stage">
+            <img id="result-image" alt="產生結果">
+            <div id="layout-guide" class="layout-guide" aria-label="輸出版型預覽">
+              <div class="layout-photo">
+                <span id="layout-size">1179 x 880</span>
+              </div>
+              <div class="layout-swatches" id="layout-swatches"></div>
+            </div>
+            <div id="empty-state" class="empty-state">等待圖片</div>
+          </div>
+        </section>
+      </section>
+    </main>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>

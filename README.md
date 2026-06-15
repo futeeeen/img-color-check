@@ -37,6 +37,25 @@ Generate one palette image:
 python palette_generator.py path\to\photo.jpg --output-dir output
 ```
 
+Start the local web UI:
+
+```powershell
+python app.py
+```
+
+Then open `http://127.0.0.1:7860`.
+
+The UI supports:
+
+- Image upload.
+- Palette count.
+- Sorting mode.
+- Output dimensions.
+- White border and divider thickness.
+- Subject and saliency weighting.
+- Local color protection for small but important regions.
+- PNG preview and download.
+
 Generate palette images for a directory:
 
 ```powershell

@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Image Color Check - 一個利用視覺顯著性權重與 OKLab 感知色彩空間進行電影感調色盤提取的極致工具。">
+  <title>Image Color Check | 感知色彩與電影感調色盤提取系統</title>
+  
+  <!-- Premium Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;600;800&family=Syne:wght@700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  
+  <!-- Icon Libraries -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="./landing.css?v=1">
+</head>
+<body class="loading">
+
+  <!-- Custom Magnetic Cursor -->
+  <div class="custom-cursor" id="custom-cursor"></div>
+  <div class="custom-cursor-dot" id="custom-cursor-dot"></div>
+
+  <!-- Dynamic Loader with Colorful Spectrum Ring -->
+  <div id="loader" class="loader-overlay">
+    <div class="loader-content">
+      <svg class="loader-svg" viewBox="0 0 100 100" width="120" height="120">
+        <circle class="loader-track-outer" cx="50" cy="50" r="44" stroke="rgba(0,0,0,0.03)" stroke-width="2" fill="none" />
+        <circle class="loader-ring-outer" cx="50" cy="50" r="44" stroke="url(#loader-grad)" stroke-width="3.5" fill="none" stroke-dasharray="70 150" />
+        <circle class="loader-ring-mid" cx="50" cy="50" r="32" stroke="url(#loader-grad2)" stroke-width="2.5" fill="none" stroke-dasharray="50 100" />
+        <circle class="loader-ring-inner" cx="50" cy="50" r="20" stroke="url(#loader-grad3)" stroke-width="1.5" fill="none" stroke-dasharray="30 50" />
+        <circle class="loader-center-dot" cx="50" cy="50" r="6" fill="#38bdf8" />
+        <defs>
+          <linearGradient id="loader-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#38bdf8" />
+            <stop offset="100%" stop-color="#c084fc" />
+          </linearGradient>
+          <linearGradient id="loader-grad2" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#fb923c" />
+            <stop offset="100%" stop-color="#2dd4bf" />
+          </linearGradient>
+          <linearGradient id="loader-grad3" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#fb7185" />
+            <stop offset="100%" stop-color="#38bdf8" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="loader-text-wrapper">
+        <div class="loader-progress">0%</div>
+        <div class="loader-sub">ANALYZING PERCEPTUAL COLOR FIELDS</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Navigation -->
+  <header class="nav-header">
+    <div class="nav-container">
+      <a href="#hero" class="nav-logo magnetic-target">
+        <svg class="logo-svg" viewBox="0 0 100 100" width="36" height="36">
+          <circle cx="30" cy="50" r="10" fill="#38bdf8" opacity="0.9"/>
+          <circle cx="50" cy="50" r="14" fill="#c084fc" opacity="0.8"/>
+          <circle cx="70" cy="50" r="10" fill="#fb923c" opacity="0.9"/>
+        </svg>
+        <span class="logo-text">COLOR CHECK</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#hero" class="nav-link magnetic-target">OVERVIEW</a>
+        <a href="#showcase" class="nav-link magnetic-target">ALGORITHM</a>
+        <a href="#stats-matrix" class="nav-link magnetic-target">PRESETS</a>
+        <a href="#explorer" class="nav-link magnetic-target">RESOURCES</a>
+      </nav>
+      <button class="menu-toggle" aria-label="Toggle Menu">
+        <span class="line"></span>
+        <span class="line"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Dropdown Menu -->
+  <div class="mobile-menu">
+    <div class="mobile-menu-inner">
+      <a href="#hero" class="mobile-nav-link">OVERVIEW</a>
+      <a href="#showcase" class="mobile-nav-link">ALGORITHM</a>
+      <a href="#stats-matrix" class="mobile-nav-link">PRESETS</a>
+      <a href="#explorer" class="mobile-nav-link">RESOURCES</a>
+    </div>
+  </div>
+
+  <!-- Scroll Progress Bar -->
+  <div class="scroll-progress-container">
+    <div class="scroll-progress-bar" id="progress-bar"></div>
+  </div>
+
+  <!-- Hero Landing Section -->
+  <section id="hero" class="hero-section">
+    <div class="hero-bg-dots"></div>
+    <div class="hero-glow-back"></div>
+    
+    <!-- Parallax Layers -->
+    <div class="hero-layer hero-layer-back" data-depth="0.08">
+      <div class="grid-overlay"></div>
+    </div>
+    
+    <div class="hero-layer hero-layer-text" data-depth="0.2">
+      <h1 class="hero-title">
+        <span class="title-outline">CINEMATIC</span>
+        <span class="title-solid">COLOR CHECK</span>
+      </h1>
+      <p class="hero-subtitle">Perceptual Color Palette Extraction & Advanced Saliency Weighting</p>
+    </div>
+    
+    <div class="hero-layer hero-layer-mid" data-depth="0.4">
+      <div class="hero-chart-img-wrap">
+        <div class="hero-card-container">
+          <img src="./hero_palette.jpg" alt="Cinematic Red Plush Toy Palette" class="hero-chart-img" />
+          <div class="hero-card-glow"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="hero-layer hero-layer-front" data-depth="0.5">
+      <div class="fog-overlay"></div>
+    </div>
+    
+    <div class="scroll-indicator">
+      <span class="scroll-text">EXPLORE PIPELINE</span>
+      <svg class="scroll-mouse" viewBox="0 0 24 36" width="20" height="30">
+        <rect x="2" y="2" width="20" height="32" rx="10" stroke="currentColor" stroke-width="2" fill="none" />
+        <circle cx="12" cy="10" r="2" class="scroll-wheel" fill="currentColor" />
+      </svg>
+    </div>
+  </section>
+
+  <!-- Showcase Section (Pipeline Core) -->
+  <section id="showcase" class="showcase-section">
+    
+    <!-- Step 1: Saliency Weighting -->
+    <div class="showcase-row" id="step-saliency" data-bg="#f8fafc" data-theme="blue">
+      <div class="bg-number" data-speed="-0.15">STEP 01</div>
+      <div class="showcase-container">
+        <div class="showcase-visual">
+          <div class="img-reveal-container">
+            <!-- SVG representing Weight Map calculation -->
+            <svg viewBox="0 0 200 200" class="showcase-svg">
+              <defs>
+                <radialGradient id="weight-glow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.4" />
+                  <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
+                </radialGradient>
+              </defs>
+              <rect x="20" y="20" width="160" height="160" rx="16" fill="rgba(56, 189, 248, 0.03)" stroke="rgba(56, 189, 248, 0.15)" stroke-width="2" />
+              <!-- Bounding box representing center bias -->
+              <rect x="50" y="50" width="100" height="100" rx="8" fill="url(#weight-glow)" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4 4" />
+              <!-- Contrast weights representation -->
+              <circle cx="75" cy="85" r="25" fill="none" stroke="#38bdf8" stroke-width="2" filter="drop-shadow(0 0 4px #38bdf8)" />
+              <circle cx="125" cy="115" r="15" fill="none" stroke="#38bdf8" stroke-width="1.5" />
+              <!-- Detail nodes -->
+              <line x1="75" y1="85" x2="125" y2="115" stroke="rgba(56, 189, 248, 0.3)" stroke-width="1" />
+              <text x="100" y="40" font-family="'Consolas', monospace" font-size="8" fill="#38bdf8" text-anchor="middle">SALIENCY WEIGHTS</text>
+              <circle cx="75" cy="85" r="4" fill="#38bdf8" />
+              <circle cx="125" cy="115" r="4" fill="#38bdf8" />
+            </svg>
+          </div>
+          <div class="visual-decor">
+            <svg class="decor-circle" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45" stroke="rgba(56, 189, 248, 0.15)" stroke-width="1" fill="none" stroke-dasharray="5 5" />
+            </svg>
+          </div>
+        </div>
+        <div class="showcase-details">
+          <div class="detail-header">
+            <span class="pokemon-num">STAGE 01</span>
+            <span class="badge type-blue">WEIGHT MAP</span>
+          </div>
+          <h2 class="pokemon-name reveal-text">視覺顯著性權重提取</h2>
+          <p class="pokemon-desc reveal-fade">
+            拒絕盲目的「最常出現像素」選色。系統深入圖像像素層級，結合<b>局部對比度</b>、<b>邊緣細節強度</b>、<b>飽和度</b>與<b>中央主體偏置 (Center Bias)</b> 計算每個像素的權重值，下放低資訊度的純黑或過曝白。即使點綴物所佔面積極小（如紅花、溫暖膚色），亦能完美捕捉，不被背景天際或綠地吞沒。
+          </p>
+          <div class="pokemon-stats-summary reveal-fade">
+            <div class="stat-item"><span class="label">SALIENCY FACTOR</span><span class="value">Multi-Layer</span></div>
+            <div class="stat-item"><span class="label">CENTER BIAS</span><span class="value">Weighted</span></div>
+            <div class="stat-item"><span class="label">DETAIL DETECTION</span><span class="value">Laplacian</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: OKLab Clustering -->
+    <div class="showcase-row row-reverse" id="step-clustering" data-bg="#ffffff" data-theme="purple">
+      <div class="bg-number" data-speed="-0.15">STEP 02</div>
+      <div class="showcase-container">
+        <div class="showcase-details">
+          <div class="detail-header">
+            <span class="pokemon-num">STAGE 02</span>
+            <span class="badge type-purple">OKLAB K-MEANS</span>
+          </div>
+          <h2 class="pokemon-name reveal-text">感知色彩空間分群</h2>
+          <p class="pokemon-desc reveal-fade">
+            捨棄傳統不符合人類視覺習慣的 RGB 距離。系統將像素投射至現代極致感知色彩空間 <b>OKLab / OKLCH</b> 中，執行加權 MiniBatchKMeans 分群。再利用 Delta E Perceptual Distance 計算色差，自動將視覺上重疊、過於接近的候選色進行加權融合，確保調色盤色彩互不重複、展現高度多樣性。
+          </p>
+          <div class="pokemon-stats-summary reveal-fade">
+            <div class="stat-item"><span class="label">COLOR SPACE</span><span class="value">OKLab / OKLCH</span></div>
+            <div class="stat-item"><span class="label">CLUSTERING</span><span class="value">MiniBatchKMeans</span></div>
+            <div class="stat-item"><span class="label">MERGING METRIC</span><span class="value">Delta E (Perceptual)</span></div>
+          </div>
+        </div>
+        <div class="showcase-visual">
+          <div class="img-reveal-container">
+            <!-- SVG representing OKLab clustering -->
+            <svg viewBox="0 0 200 200" class="showcase-svg">
+              <defs>
+                <linearGradient id="purple-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#c084fc" />
+                  <stop offset="100%" stop-color="#a855f7" />
+                </linearGradient>
+              </defs>
+              <!-- 3D Axes Representation -->
+              <line x1="100" y1="20" x2="100" y2="180" stroke="rgba(192, 132, 252, 0.2)" stroke-width="1.5" />
+              <line x1="20" y1="100" x2="180" y2="100" stroke="rgba(192, 132, 252, 0.2)" stroke-width="1.5" />
+              <line x1="40" y1="160" x2="160" y2="40" stroke="rgba(192, 132, 252, 0.2)" stroke-width="1.5" />
+              
+              <!-- Cluster Center 1 -->
+              <circle cx="70" cy="70" r="14" fill="url(#purple-grad)" filter="drop-shadow(0 0 6px #c084fc)" />
+              <circle cx="70" cy="70" r="4" fill="#fff" />
+              <!-- Points around cluster 1 -->
+              <circle cx="50" cy="60" r="3" fill="#c084fc" />
+              <circle cx="85" cy="55" r="3" fill="#c084fc" />
+              <circle cx="60" cy="90" r="3" fill="#c084fc" />
+              
+              <!-- Cluster Center 2 -->
+              <circle cx="140" cy="130" r="10" fill="none" stroke="#a855f7" stroke-width="2" />
+              <circle cx="140" cy="130" r="3" fill="#a855f7" />
+              <circle cx="120" cy="140" r="2.5" fill="rgba(168, 85, 247, 0.4)" />
+              <circle cx="155" cy="120" r="2.5" fill="rgba(168, 85, 247, 0.4)" />
+              <circle cx="145" cy="150" r="2.5" fill="rgba(168, 85, 247, 0.4)" />
+              
+              <!-- Distance Arrow -->
+              <path d="M 70,70 L 140,130" fill="none" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="3 3" />
+              <text x="115" y="90" font-family="'Consolas', monospace" font-size="8" fill="#a855f7" text-anchor="middle">Delta E > 0.08</text>
+            </svg>
+          </div>
+          <div class="visual-decor">
+            <svg class="decor-circle" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45" stroke="rgba(192, 132, 252, 0.15)" stroke-width="1" fill="none" stroke-dasharray="5 5" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Cinematic Sorting -->
+    <div class="showcase-row" id="step-sorting" data-bg="#fdfdfd" data-theme="orange">
+      <div class="bg-number" data-speed="-0.15">STEP 03</div>
+      <div class="showcase-container">
+        <div class="showcase-visual">
+          <div class="img-reveal-container">
+            <!-- SVG representing sorting waves -->
+            <svg viewBox="0 0 200 200" class="showcase-svg">
+              <defs>
+                <linearGradient id="orange-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fb923c" />
+                  <stop offset="100%" stop-color="#fb7185" />
+                </linearGradient>
+              </defs>
+              <!-- Grid Background -->
+              <rect x="20" y="20" width="160" height="160" rx="16" fill="rgba(251, 146, 60, 0.02)" stroke="rgba(251, 146, 60, 0.1)" stroke-width="1" />
+              
+              <!-- Wavy flow representing hue/lightness sequence -->
+              <path d="M 30,130 C 70,50 130,150 170,70" fill="none" stroke="url(#orange-grad)" stroke-width="4" filter="drop-shadow(0 4px 8px rgba(251, 146, 60, 0.3))" />
+              
+              <!-- Color swatches on path -->
+              <circle cx="30" cy="130" r="8" fill="#1e293b" />
+              <circle cx="65" cy="85" r="8" fill="#78350f" />
+              <circle cx="100" cy="100" r="8" fill="#ea580c" />
+              <circle cx="135" cy="115" r="8" fill="#fb923c" />
+              <circle cx="170" cy="70" r="8" fill="#fef08a" />
+              
+              <text x="100" y="165" font-family="var(--font-heading)" font-size="9" fill="#ea580c" text-anchor="middle" font-weight="600">CINEMATIC PROGRESSION</text>
+            </svg>
+          </div>
+          <div class="visual-decor">
+            <svg class="decor-circle" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45" stroke="rgba(251, 146, 60, 0.15)" stroke-width="1" fill="none" stroke-dasharray="5 5" />
+            </svg>
+          </div>
+        </div>
+        <div class="showcase-details">
+          <div class="detail-header">
+            <span class="pokemon-num">STAGE 03</span>
+            <span class="badge type-orange">CINEMATIC SORT</span>
+          </div>
+          <h2 class="pokemon-name reveal-text">電影感明暗明排序</h2>
+          <p class="pokemon-desc reveal-fade">
+            雜亂的色彩分佈會破壞眼球的和諧感。系統首創「電影海報級」色帶排序機制。首先將提取的色彩按其在 OKLCH 中的<b>色相族群 (Hue Bands)</b> 分組，每組內以明度排列。最終色塊配置以深色作為左側錨點，中間穿插主體色彩與高飽和度情感色，右側收尾於明亮高光。
+          </p>
+          <div class="pokemon-stats-summary reveal-fade">
+            <div class="stat-item"><span class="label">SORTING MODE</span><span class="value">Hue + Lightness</span></div>
+            <div class="stat-item"><span class="label">LEFT ANCHOR</span><span class="value">Dark Shadow</span></div>
+            <div class="stat-item"><span class="label">PROGRESSION</span><span class="value">Cinematic Wave</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Matrix Section (Presets Comparison) -->
+  <section id="stats-matrix" class="stats-section">
+    <div class="stats-bg-glow"></div>
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stats-content">
+          <span class="section-tag reveal-fade">ALGORITHM ENGINE</span>
+          <h2 class="section-title reveal-text">演算預設對比矩陣</h2>
+          <p class="section-desc reveal-fade">
+            本工具內建四種核心的色彩提取權重分配。點擊下方按鈕，雷達矩陣會以動態圖形呈現該權重配置在主體聚焦、色彩多樣度與明暗控制等六個感知維度上的權重佔比。
+          </p>
+          
+          <!-- Selector Tabs -->
+          <div class="stats-selector reveal-fade">
+            <button class="selector-btn active magnetic-target" data-config="cinematic_default">CINEMATIC DEFAULT</button>
+            <button class="selector-btn magnetic-target" data-config="vibrant_accent">VIBRANT ACCENT</button>
+            <button class="selector-btn magnetic-target" data-config="landscape_atmosphere">LANDSCAPE ATMOS</button>
+            <button class="selector-btn magnetic-target" data-config="subject_focus">SUBJECT FOCUS</button>
+          </div>
+
+          <!-- Individual Stats List -->
+          <div class="stats-list reveal-fade">
+            <div class="stat-bar-item" data-index="0">
+              <div class="bar-header">
+                <span class="bar-name">ATMOSPHERE (大氣氛圍 - 面積比重)</span>
+                <span class="bar-val" id="val-accuracy">80%</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill" id="fill-accuracy"></div></div>
+            </div>
+            <div class="stat-bar-item" data-index="1">
+              <div class="bar-header">
+                <span class="bar-name">SATURATION (飽和度增強 - 鮮豔佔比)</span>
+                <span class="bar-val" id="val-f1">70%</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill" id="fill-f1"></div></div>
+            </div>
+            <div class="stat-bar-item" data-index="2">
+              <div class="bar-header">
+                <span class="bar-name">CONTRAST (對比敏感度 - 邊緣特徵)</span>
+                <span class="bar-val" id="val-return">75%</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill" id="fill-return"></div></div>
+            </div>
+            <div class="stat-bar-item" data-index="3">
+              <div class="bar-header">
+                <span class="bar-name">SALIENCY (視覺顯著度 - 主體偏置)</span>
+                <span class="bar-val" id="val-risk">60%</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill" id="fill-risk"></div></div>
+            </div>
+            <div class="stat-bar-item" data-index="4">
+              <div class="bar-header">
+                <span class="bar-name">LIGHTNESS RANGE (明暗區間 - 階調跨度)</span>
+                <span class="bar-val" id="val-sharpe">0.65</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill" id="fill-sharpe"></div></div>
+            </div>
+            <div class="stat-bar-item" data-index="5">
+              <div class="bar-header">
+                <span class="bar-name">DIVERSITY (色相多樣度 - 互補族群)</span>
+                <span class="bar-val" id="val-cost">極佳 (均勻)</span>
+              </div>
+              <div class="bar-track"><div class="bar-fill" id="fill-cost"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-visual reveal-fade">
+          <div class="radar-container">
+            <svg class="radar-svg" viewBox="0 0 500 500">
+              <!-- Radial grid backgrounds -->
+              <circle cx="250" cy="250" r="180" class="radar-grid" />
+              <circle cx="250" cy="250" r="144" class="radar-grid" />
+              <circle cx="250" cy="250" r="108" class="radar-grid" />
+              <circle cx="250" cy="250" r="72" class="radar-grid" />
+              <circle cx="250" cy="250" r="36" class="radar-grid" />
+              
+              <!-- Axes lines -->
+              <line x1="250" y1="250" x2="250" y2="70" class="radar-axis-line" />
+              <line x1="250" y1="250" x2="405.9" y2="160" class="radar-axis-line" />
+              <line x1="250" y1="250" x2="405.9" y2="340" class="radar-axis-line" />
+              <line x1="250" y1="250" x2="250" y2="430" class="radar-axis-line" />
+              <line x1="250" y1="250" x2="94.1" y2="340" class="radar-axis-line" />
+              <line x1="250" y1="250" x2="94.1" y2="160" class="radar-axis-line" />
+              
+              <!-- Polygon fill representing preset coordinates -->
+              <polygon id="radar-poly" points="250,70 250,250 250,250 250,250 250,250 250,250" />
+              
+              <!-- Radar points (vertex dots) -->
+              <g class="radar-vertices">
+                <circle id="v-accuracy" cx="250" cy="250" r="5" class="radar-vertex" />
+                <circle id="v-f1" cx="250" cy="250" r="5" class="radar-vertex" />
+                <circle id="v-return" cx="250" cy="250" r="5" class="radar-vertex" />
+                <circle id="v-risk" cx="250" cy="250" r="5" class="radar-vertex" />
+                <circle id="v-sharpe" cx="250" cy="250" r="5" class="radar-vertex" />
+                <circle id="v-cost" cx="250" cy="250" r="5" class="radar-vertex" />
+              </g>
+
+              <!-- Labels -->
+              <text x="250" y="55" class="radar-label" text-anchor="middle">ATMOSPHERE</text>
+              <text x="420" y="155" class="radar-label" text-anchor="start">SATURATION</text>
+              <text x="420" y="355" class="radar-label" text-anchor="start">CONTRAST</text>
+              <text x="250" y="450" class="radar-label" text-anchor="middle">SALIENCY</text>
+              <text x="80" y="355" class="radar-label" text-anchor="end">LIGHTNESS</text>
+              <text x="80" y="155" class="radar-label" text-anchor="end">DIVERSITY</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Explorer Catalog Section (Deliverables) -->
+  <section id="explorer" class="explorer-section">
+    <div class="container">
+      <div class="explorer-header">
+        <span class="section-tag reveal-fade">PROJECT RESOURCES</span>
+        <h2 class="section-title reveal-text">專案技術成果庫</h2>
+        <p class="explorer-subtext reveal-fade">
+          本色彩校驗系統包含網頁應用程式、命令列批次處理腳本以及詳盡的演算法研發文檔。您可在此存取完整成果。
+        </p>
+      </div>
+
+      <!-- Cards Grid -->
+      <div class="explorer-grid reveal-fade">
+        
+        <!-- Card 1: Interactive Flask Web UI -->
+        <div class="pokemon-card project-card">
+          <div class="card-glow"></div>
+          <div class="card-inner">
+            <span class="card-number">01</span>
+            <div class="card-icon-wrap">
+              <i class="fa-solid fa-window-restore card-proj-icon"></i>
+            </div>
+            <h3 class="card-name">本機網頁互動式 UI</h3>
+            <p class="card-proj-desc">
+              點擊上傳圖片並啟動參數調校。支援調配色彩數量、自訂輸出長寬、即時調整顯著性比重強度與電影感排序預覽，並可一鍵下載 PNG 高清圖。於專案目錄執行：
+              <code class="terminal-code">python app.py</code>
+            </p>
+            <div class="card-badges">
+              <span class="badge-mini active-html">Flask Web</span>
+              <span class="badge-mini active-js">HTML5/JS</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Python CLI Script -->
+        <div class="pokemon-card project-card">
+          <div class="card-glow"></div>
+          <div class="card-inner">
+            <span class="card-number">02</span>
+            <div class="card-icon-wrap">
+              <i class="fa-solid fa-terminal card-proj-icon"></i>
+            </div>
+            <h3 class="card-name">CLI 批次生成工具</h3>
+            <p class="card-proj-desc">
+              支援目錄級的批次自動提取。內建 `--crop-source auto-palette` 功能，可全自動切除驗證圖片的舊有色塊列以加速校準：
+              <code class="terminal-code">python palette_generator.py valid-used --output-dir output</code>
+            </p>
+            <div class="card-badges">
+              <span class="badge-mini type-pdf">Python CLI</span>
+              <span class="badge-mini type-academic">OpenCV</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: OKLab Conversion Engine -->
+        <div class="pokemon-card project-card">
+          <div class="card-glow"></div>
+          <div class="card-inner">
+            <span class="card-number">03</span>
+            <div class="card-icon-wrap">
+              <i class="fa-solid fa-palette card-proj-icon"></i>
+            </div>
+            <h3 class="card-name">OKLab 色彩計算引擎</h3>
+            <p class="card-proj-desc">
+              純手工實作線性 RGB 與 OKLab/OKLCH 感知空間雙向轉換數學公式。包含色域裁切與均勻階調分佈演算法，優於傳統 CIELAB 近似。
+            </p>
+            <div class="card-badges">
+              <span class="badge-mini type-md">OKLab Engine</span>
+              <span class="badge-mini type-clean">NumPy Math</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Technical Design Docs -->
+        <a href="../implement.md" target="_blank" class="pokemon-card project-card">
+          <div class="card-glow"></div>
+          <div class="card-inner">
+            <span class="card-number">04</span>
+            <div class="card-icon-wrap">
+              <i class="fa-solid fa-file-invoice card-proj-icon"></i>
+            </div>
+            <h3 class="card-name">技術設計文檔 (implement.md)</h3>
+            <p class="card-proj-desc">
+              點擊查看詳細架構。涵蓋圖像加載、7層權重設計、Weighted KMeans 演算法、候選色 Perceptual Merge、色彩美化與輸出排版。
+            </p>
+            <div class="card-badges">
+              <span class="badge-mini type-slide">Markdown</span>
+              <span class="badge-mini type-youtube">Design Docs</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Card 5: Version History Docs -->
+        <a href="../history.md" target="_blank" class="pokemon-card project-card">
+          <div class="card-glow"></div>
+          <div class="card-inner">
+            <span class="card-number">05</span>
+            <div class="card-icon-wrap">
+              <i class="fa-solid fa-history card-proj-icon"></i>
+            </div>
+            <h3 class="card-name">版本演進日誌 (history.md)</h3>
+            <p class="card-proj-desc">
+              記錄專案從 v1.0 至 v2.1 各階段的變更。包括 MiniBatchKMeans 優化、飽和度保護、亮暗調分配邏輯重寫與高光補償修正路徑。
+            </p>
+            <div class="card-badges">
+              <span class="badge-mini type-streamlit">Changelog</span>
+              <span class="badge-mini type-python">Git History</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Card 6: Git Source Code -->
+        <div class="pokemon-card project-card">
+          <div class="card-glow"></div>
+          <div class="card-inner">
+            <span class="card-number">06</span>
+            <div class="card-icon-wrap">
+              <i class="fa-brands fa-github card-proj-icon"></i>
+            </div>
+            <h3 class="card-name">Git 專案核心源碼</h3>
+            <p class="card-proj-desc">
+              查閱專案源碼庫。核心程式碼 `palette_generator.py` 與 `app.py` 架構整潔並附完整英文註釋，可作為獨立模組導入其他圖像系統。
+            </p>
+            <div class="card-badges">
+              <span class="badge-mini type-code">Source Code</span>
+              <span class="badge-mini type-scikit">Python 3.13</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Premium Footer -->
+  <footer class="footer-section">
+    <div class="footer-glow"></div>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="nav-logo">
+            <svg class="logo-svg footer-logo" viewBox="0 0 100 100" width="45" height="45">
+              <circle cx="30" cy="50" r="10" fill="#38bdf8" opacity="0.9"/>
+              <circle cx="50" cy="50" r="14" fill="#c084fc" opacity="0.8"/>
+              <circle cx="70" cy="50" r="10" fill="#fb923c" opacity="0.9"/>
+            </svg>
+            <span class="logo-text">COLOR CHECK</span>
+          </div>
+          <p class="footer-tagline">Decoding visual aesthetics with human color perception modeling and elegant UI layouts.</p>
+        </div>
+        <div class="footer-links-group">
+          <div class="footer-links-col">
+            <h4>DIRECTORIES</h4>
+            <a href="#hero" class="footer-link">Overview</a>
+            <a href="#showcase" class="footer-link">Algorithm Engine</a>
+            <a href="#stats-matrix" class="footer-link">Presets Comparison</a>
+            <a href="#explorer" class="footer-link">Project Resources</a>
+          </div>
+          <div class="footer-links-col">
+            <h4>RESOURCES</h4>
+            <a href="https://github.com/lokesh/color-thief" target="_blank" rel="noopener" class="footer-link">Color Thief GitHub</a>
+            <a href="https://greensock.com/gsap/" target="_blank" rel="noopener" class="footer-link">GSAP Animation</a>
+            <a href="https://github.com/darkroomengineering/lenis" target="_blank" rel="noopener" class="footer-link">Lenis Scroll Engine</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p class="copyright">&copy; 2026 Image Color Check. Built with passion, color science, and dynamic code.</p>
+        <p class="disclaimer">政大資料科學與金融科技色彩提取專案成果網站</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
+  
+  <!-- Core Javascript -->
+  <script src="./landing.js?v=1"></script>
+</body>
+</html>

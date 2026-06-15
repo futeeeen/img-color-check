@@ -261,6 +261,87 @@ def cluster_colors(
     return candidates
 
 
+def build_palette_color(lab: np.ndarray, score: float, weight: float) -> PaletteColor:
+    lightness, chroma, hue = lab_to_lch(lab)
+    return PaletteColor(
+        lab=lab,
+        rgb=oklab_to_rgb8(lab),
+        score=float(score),
+        weight=float(weight),
+        lightness=lightness,
+        chroma=chroma,
+        hue=hue,
+    )
+
+
+def local_region_candidates(
+    lab: np.ndarray,
+    weights: np.ndarray,
+    strength: float,
+) -> list[PaletteColor]:
+    height, width, _ = lab.shape
+    chroma = np.sqrt(lab[..., 1] ** 2 + lab[..., 2] ** 2)
+    lightness = lab[..., 0]
+    importance = weights * (0.65 + chroma * 8.0)
+    protected: list[PaletteColor] = []
+
+    # Multiple grids with half-cell offsets approximate a k-fold local scan.
+    # This avoids baking in one fixed position while still protecting small regions.
+    grid_specs = [(3, 3, 0.0, 0.0), (4, 4, 0.0, 0.0), (4, 4, 0.5, 0.5), (5, 5, 0.0, 0.5), (5, 5, 0.5, 0.0)]
+    for rows, cols, y_offset, x_offset in grid_specs:
+        tile_h = height / rows
+        tile_w = width / cols
+        y_start = -tile_h * y_offset
+        x_start = -tile_w * x_offset
+        for row in range(rows + 1):
+            top = max(0, int(round(y_start + row * tile_h)))
+            bottom = min(height, int(round(y_start + (row + 1) * tile_h)))
+            if bottom - top < 8:
+                continue
+            for col in range(cols + 1):
+                left = max(0, int(round(x_start + col * tile_w)))
+                right = min(width, int(round(x_start + (col + 1) * tile_w)))
+                if right - left < 8:
+                    continue
+
+                tile_lab = lab[top:bottom, left:right].reshape(-1, 3)
+                tile_importance = importance[top:bottom, left:right].reshape(-1)
+                tile_chroma = chroma[top:bottom, left:right].reshape(-1)
+                tile_lightness = lightness[top:bottom, left:right].reshape(-1)
+
+                keep = (tile_chroma > 0.028) & (tile_lightness > 0.08) & (tile_lightness < 0.94)
+                if int(keep.sum()) < 12:
+                    continue
+
+                kept_importance = tile_importance[keep]
+                threshold = np.quantile(kept_importance, 0.82)
+                strong = keep.copy()
+                strong[keep] = kept_importance >= threshold
+                if int(strong.sum()) < 8:
+                    continue
+
+                selected_lab = tile_lab[strong]
+                selected_weight = tile_importance[strong]
+                total_weight = float(selected_weight.sum())
+                if total_weight <= 1e-6:
+                    continue
+
+                center = np.average(selected_lab, axis=0, weights=selected_weight)
+                local_lightness, local_chroma, _ = lab_to_lch(center)
+                if local_chroma < 0.025:
+                    continue
+
+                area_ratio = strong.sum() / max(tile_lab.shape[0], 1)
+                detail_bonus = min(float(selected_weight.mean()) * 0.22, 0.5)
+                rarity_bonus = 1.0 - min(area_ratio * 3.5, 0.8)
+                score = strength * (1.0 + local_chroma * 8.0 + detail_bonus + rarity_bonus)
+                if local_lightness < 0.22:
+                    score += strength * 0.25
+                protected.append(build_palette_color(center, score=score, weight=total_weight * strength))
+
+    return merge_similar_colors(protected, threshold=0.032)
+
+
 def perceptual_distance(a: PaletteColor, b: PaletteColor) -> float:
     return float(np.linalg.norm(a.lab - b.lab))
 
@@ -363,7 +444,14 @@ def order_palette(colors: list[PaletteColor], mode: str) -> list[PaletteColor]:
     if mode == "luminance":
         return sorted(colors, key=lambda item: (item.lightness, item.hue))
     if mode == "hue":
-        return sorted(colors, key=lambda item: (item.hue, item.lightness))
+        neutral_dark = [color for color in colors if color.chroma < 0.04 and color.lightness < 0.38]
+        neutral_light = [color for color in colors if color.chroma < 0.04 and color not in neutral_dark]
+        chromatic = [color for color in colors if color not in neutral_dark and color not in neutral_light]
+        return (
+            sorted(neutral_dark, key=lambda item: item.lightness)
+            + hue_band_order(chromatic)
+            + sorted(neutral_light, key=lambda item: item.lightness)
+        )
     if mode != "cinematic":
         raise ValueError(f"Unknown order mode: {mode}")
 
@@ -380,6 +468,7 @@ def extract_palette(
     max_samples: int,
     saliency_strength: float,
     subject_boost: float,
+    local_protection: float,
     seed: int,
     order: str,
 ) -> list[PaletteColor]:
@@ -389,6 +478,8 @@ def extract_palette(
     lab = rgb_to_oklab(rgb.reshape(-1, 3)).reshape(rgb.shape)
     lab_pixels, sample_weights = sample_pixels(lab, weights, max_samples=max_samples, seed=seed)
     candidates = cluster_colors(lab_pixels, sample_weights, cluster_count=clusters, seed=seed)
+    if local_protection > 0:
+        candidates.extend(local_region_candidates(lab, weights, strength=local_protection))
     candidates = merge_similar_colors(candidates, threshold=0.035)
     selected = select_palette(candidates, count=palette_count, min_distance=0.045)
 
@@ -491,6 +582,7 @@ def process_image(input_path: Path, args: argparse.Namespace) -> Path:
         max_samples=args.max_samples,
         saliency_strength=args.saliency_strength,
         subject_boost=args.subject_boost,
+        local_protection=args.local_protection,
         seed=args.seed,
         order=args.order,
     )
@@ -521,6 +613,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-samples", type=int, default=80000, help="Maximum sampled pixels for clustering.")
     parser.add_argument("--saliency-strength", type=float, default=0.85, help="Strength of saliency weighting.")
     parser.add_argument("--subject-boost", type=float, default=0.45, help="Center subject weighting strength.")
+    parser.add_argument("--local-protection", type=float, default=0.0, help="Local color protection strength.")
     parser.add_argument("--seed", type=int, default=7, help="Random seed for sampling and clustering.")
     parser.add_argument("--order", choices=["cinematic", "luminance", "hue"], default="cinematic")
     parser.add_argument("--crop-source", choices=["none", "auto-palette"], default="none")

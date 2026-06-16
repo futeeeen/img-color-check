@@ -71,7 +71,8 @@ def generate():
         gutter = parse_int("gutter", 8, 0, 48)
         saliency_strength = parse_float("saliency_strength", 0.85, 0.0, 2.0)
         subject_boost = parse_float("subject_boost", 0.45, 0.0, 2.0)
-        local_protection = parse_float("local_protection", 0.0, 0.0, 2.0)
+        local_protection_level = parse_int("local_protection", 0, 0, 3)
+        local_protection = [0.0, 0.55, 1.0, 1.45][local_protection_level]
 
         colors = extract_palette(
             image,

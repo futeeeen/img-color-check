@@ -53,7 +53,8 @@ The UI supports:
 - Output dimensions.
 - White border and divider thickness.
 - Subject and saliency weighting.
-- Local color protection for small but important regions.
+- Local color protection with off / weak / medium / strong levels for small but important regions.
+- Tooltips explaining what each parameter affects.
 - PNG preview and download.
 
 Generate palette images for a directory:

@@ -26,12 +26,12 @@
 
           <div class="settings-grid">
             <label>
-              <span>色票數</span>
+              <span class="field-label">色票數 <button class="tooltip-button" type="button" aria-label="色票數說明" data-tooltip="控制輸出色票的數量。數量越多，小面積顏色越有機會出現；數量越少，結果越精簡。">?</button></span>
               <input name="palette_count" type="number" min="4" max="14" value="10">
             </label>
 
             <label>
-              <span>排序</span>
+              <span class="field-label">排序 <button class="tooltip-button" type="button" aria-label="排序說明" data-tooltip="控制色票排列順序。Cinematic 會以氛圍和色相連續為主；重到輕會盡量由深到淺；色相會依顏色家族排列。">?</button></span>
               <select name="order">
                 <option value="cinematic" selected>Cinematic</option>
                 <option value="luminance">重到輕</option>
@@ -40,43 +40,49 @@
             </label>
 
             <label>
-              <span>寬度</span>
+              <span class="field-label">寬度 <button class="tooltip-button" type="button" aria-label="寬度說明" data-tooltip="控制下載 PNG 的整體寬度，單位是 px。右側預覽會同步顯示輸出比例。">?</button></span>
               <input name="canvas_width" type="number" min="720" max="1800" value="1179">
             </label>
 
             <label>
-              <span>照片高度</span>
+              <span class="field-label">照片高度 <button class="tooltip-button" type="button" aria-label="照片高度說明" data-tooltip="控制輸出圖上半部照片區域的高度。照片會置中裁切填滿這個區域。">?</button></span>
               <input name="image_height" type="number" min="360" max="1100" value="650">
             </label>
 
             <label>
-              <span>色票高度</span>
+              <span class="field-label">色票高度 <button class="tooltip-button" type="button" aria-label="色票高度說明" data-tooltip="控制輸出圖下半部色票列的高度。只影響版型，不影響選色。">?</button></span>
               <input name="swatch_height" type="number" min="96" max="420" value="214">
             </label>
 
             <label>
-              <span>外框粗細</span>
+              <span class="field-label">外框粗細 <button class="tooltip-button" type="button" aria-label="外框粗細說明" data-tooltip="控制整張輸出圖最外圈白色邊框的粗細。設定為 0 會移除外框。">?</button></span>
               <input name="padding" type="number" min="0" max="48" value="8">
             </label>
 
             <label>
-              <span>分隔粗細</span>
+              <span class="field-label">分隔粗細 <button class="tooltip-button" type="button" aria-label="分隔粗細說明" data-tooltip="控制照片與色票之間、以及色票彼此之間的白色間距。設定為 0 會移除分隔線。">?</button></span>
               <input name="gutter" type="number" min="0" max="48" value="8">
             </label>
 
             <label>
-              <span>主體權重</span>
+              <span class="field-label">主體權重 <button class="tooltip-button" type="button" aria-label="主體權重說明" data-tooltip="提高畫面中心或主體附近顏色的重要性。人物、主物件明確時可調高；想保留整體背景氛圍時可調低。">?</button></span>
               <input name="subject_boost" type="range" min="0" max="2" step="0.05" value="0.45">
             </label>
 
             <label>
-              <span>顯著性</span>
+              <span class="field-label">顯著性 <button class="tooltip-button" type="button" aria-label="顯著性說明" data-tooltip="提高醒目區域的權重，例如邊緣、細節、局部對比和視覺焦點。小面積但重要的色彩可嘗試調高。">?</button></span>
               <input name="saliency_strength" type="range" min="0" max="2" step="0.05" value="0.85">
             </label>
 
-            <label class="switch-row">
-              <span>局部色彩保護</span>
-              <input name="local_protection" type="checkbox" value="1.0">
+            <label>
+              <span class="field-label">局部色彩保護 <button class="tooltip-button" type="button" aria-label="局部色彩保護說明" data-tooltip="用多組切格和偏移掃描局部區域，保護小面積但有意義的顏色。食物、便當、小物件或配菜細節可調高。">?</button></span>
+              <input name="local_protection" type="range" min="0" max="3" step="1" value="0">
+              <div class="range-steps" aria-hidden="true">
+                <span>關</span>
+                <span>弱</span>
+                <span>中</span>
+                <span>強</span>
+              </div>
             </label>
           </div>
 
